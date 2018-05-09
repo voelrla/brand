@@ -1,0 +1,35 @@
+*** Settings ***
+Library           RequestsLibrary
+Library           json
+Library           Collections
+Library           OperatingSystem
+
+*** Test Cases ***
+A test
+    Create Session    api    http://api-search2.wemakeprice.com
+    ${params}    Create Dictionary    os=pc    select_first=A    api_version=1.0.0
+    ${resp}    Get Request    api    /brandselect    \    ${params}
+    ${json}    Set Variable    ${resp.json()}
+    ${code}    Get From Dictionary    ${json}    code
+    Should Be Equal As Strings    ${resp.status_code}    200
+    Dictionary Should Contain Item    ${json}    code    0
+    Should Be Equal As Strings    ${code}    0
+
+writereview
+    ${cookies}    Create Dictionary    setGM=918aee91cf472bcad2b7f6a212037f5bff426e42452e27a3178b0e00e7167cfd0349a2c5c08971ccdca73acc44b7bf580bdc898d141646e465837fc066f59c19be8d7cdcd99cbc4a80ef021f4e75adf501c1070c3c8fd8b284595682ceccc0d0ced2cb976bf00fb27fb44712119954c020c1901bcad80e3a3a118db116ac201a3eaf9370446667362b8bc3e929ded1413ed206e5afeea761e10890d124133fe7e2daf5d04d9d22dd8346f45887ba4743e69ac6891ff12e57ee1c9d78c12ac7e8f106fde3426abc5667f22124fa85545adb44d2b82dde709c3eb54911963b5a1e48023a1f3890a1630634a97a4d402eecff6420cc32a45e35d7b59d55225f0763
+    Create Session    api    http://test.wemakeprice.com    cookies=${cookies}
+    ${headers}    Create Dictionary    Content-Type=application/json    X-HTTP-Method-Override=PUT    Referer=http://test.wemakeprice.com/mypage/deal_review_list
+    ${jsondata}    Create Dictionary    attachSeq=0    content=api 자동수정 테스트
+    ${reps}    Post Request    api    /v1/pc/review/106071/    ${jsondata}    \    ${headers}
+
+checkreview
+    ${cookies}    Create Dictionary    setGM=918aee91cf472bcad2b7f6a212037f5bff426e42452e27a3178b0e00e7167cfd0349a2c5c08971ccdca73acc44b7bf580bdc898d141646e465837fc066f59c19be8d7cdcd99cbc4a80ef021f4e75adf501c1070c3c8fd8b284595682ceccc0d0ced2cb976bf00fb27fb44712119954c020c1901bcad80e3a3a118db116ac201a3eaf9370446667362b8bc3e929ded1413ed206e5afeea761e10890d124133fe7e2daf5d04d9d22dd8346f45887ba4743e69ac6891ff12e57ee1c9d78c12ac7e8f106fde3426abc5667f22124fa85545adb44d2b82dde709c3eb54911963b5a1e48023a1f3890a1630634a97a4d402eecff6420cc32a45e35d7b59d55225f0763
+    ${params}    Create Dictionary    page=1    t=1499148962841
+    Create Session    api    http://test.wemakeprice.com    \    ${cookies}
+    ${resp}    Get Request    api    /v1/pc/reviews/list
+    ${json}    Set Variable    ${resp.json()}
+    ${data}    Get From Dictionary    ${resp.json()}    data
+    ${reviewList}    Get From Dictionary    ${data}    reviewList
+    ${paging}    Get From Dictionary    ${reviewList}    paging
+    ${totalCount}    Get From Dictionary    ${paging}    totalCount
+    log    ${totalCount}
